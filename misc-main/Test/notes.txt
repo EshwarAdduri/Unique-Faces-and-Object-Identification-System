@@ -1,0 +1,31 @@
+########## Build and push the image
+
+docker image build -t docker.io/saladtechnologies/misc:streamlit -f Dockerfile .
+docker push docker.io/saladtechnologies/misc:streamlit
+
+docker rmi $(docker images -f dangling=true -q)
+
+########## Run the image with Streamlit
+
+# Run the container locally with Streamlit
+docker run --rm -it --gpus all -p 8501:8501 \
+  docker.io/saladtechnologies/misc:streamlit
+ 
+########## Run the image with overridden CMD
+# Run the container without the default Streamlit app (if you want to override the default command)
+docker run --rm -it --gpus all -p 8501:8501 \
+  --entrypoint "sh" docker.io/saladtechnologies/misc:streamlit -c "streamlit run app.py"
+ 
+########## Enter a running container
+
+$ docker ps
+CONTAINER ID   IMAGE                         COMMAND                  CREATED         STATUS         PORTS     NAMES
+1795c47bf07d   saladtechnologies/misc:streamlit   "streamlit run app.py"   7 seconds ago   Up 7 seconds             keen_knuth
+
+$ docker exec -it 179 /bin/bash
+root@1795c47bf07d:/app# ls -ls
+total 16
+4 -rw-r--r-- 1 root root  852 Oct  5 16:07 Dockerfile
+4 -rw-r--r-- 1 root root  681 Sep 30 23:22 app.py
+4 -rw-r--r-- 1 root root 1212 Oct  5 16:01 io_worker.py  # Remove if not needed
+4 -rw-r--r-- 1 root root 1350 Oct  5 15:56 notes.txt
